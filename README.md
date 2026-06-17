@@ -1,0 +1,1 @@
+# Quotes-for-a-philosophical-mind
