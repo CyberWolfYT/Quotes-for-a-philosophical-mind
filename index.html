@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Quotes for a Philosophical Mind</title>
+<meta name="description" content="Flawless logic. Completely useless. Hundreds written, over a million generated." />
+<meta name="theme-color" content="#14111C" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Philosophy" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#14111C; --ink-2:#1C1828; --ink-3:#272036;
+    --bone:#ECE6D7; --bone-dim:#938AA0;
+    --gold:#CAA258; --gold-bright:#E6C77E;
+    --line:rgba(236,230,215,.09); --line-2:rgba(236,230,215,.14);
+    --serif:"Cormorant Garamond",Georgia,serif;
+    --sans:"Hanken Grotesk",system-ui,sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);background:var(--ink);color:var(--bone);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;line-height:1.5}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(120% 90% at 50% -10%, rgba(202,162,88,.10), transparent 55%),
+               radial-gradient(140% 120% at 50% 120%, rgba(0,0,0,.55), transparent 60%)}
+  #app{position:relative;z-index:1;min-height:100%;display:flex;flex-direction:column}
+
+  .topbar{display:none;align-items:center;justify-content:space-between;gap:.8rem;
+    padding:1.05rem clamp(1.1rem,4vw,2.4rem);border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:5;background:rgba(20,17,28,.78);backdrop-filter:blur(10px)}
+  body[data-view="cats"] .topbar,body[data-view="read"] .topbar,body[data-view="saved"] .topbar{display:flex}
+  .brand{display:flex;align-items:center;gap:.6rem;background:none;border:0;cursor:pointer;color:var(--bone);padding:.2rem .1rem}
+  .brand .ring{width:13px;height:13px;border:1.4px solid var(--gold);border-radius:50%;flex:none}
+  .brand b{font-family:var(--serif);font-weight:600;font-size:1.1rem;white-space:nowrap}
+  .brand span{color:var(--bone-dim)}
+  @media (max-width:480px){ .brand .full{display:none} }
+  .bar-actions{display:flex;align-items:center;gap:.3rem}
+  .chip{font-family:var(--sans);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-dim);
+    background:none;border:0;cursor:pointer;display:flex;align-items:center;gap:.4rem;padding:.5rem .55rem;transition:color .25s var(--ease)}
+  .chip:hover,.chip:focus-visible{color:var(--gold-bright)}
+  .chip .pip{min-width:1.2rem;height:1.2rem;display:grid;place-items:center;border:1px solid var(--line-2);border-radius:999px;font-size:.6rem;letter-spacing:0}
+
+  main{flex:1;display:flex;flex-direction:column}
+  .view{display:none;flex:1;flex-direction:column}
+  .view.is-active{display:flex;animation:viewIn .5s var(--ease)}
+  @keyframes viewIn{from{opacity:0}to{opacity:1}}
+
+  .btn{font-family:var(--sans);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;
+    color:var(--bone);background:transparent;border:1px solid var(--line-2);border-radius:999px;padding:.85rem 1.5rem;cursor:pointer;
+    transition:border-color .3s var(--ease),background .3s var(--ease),color .3s var(--ease)}
+  .btn:hover,.btn:focus-visible{border-color:var(--gold);color:var(--gold-bright)}
+  .btn--solid{border-color:var(--gold);color:var(--ink);background:var(--gold)}
+  .btn--solid:hover,.btn--solid:focus-visible{background:var(--gold-bright);border-color:var(--gold-bright);color:var(--ink)}
+
+  #view-home{align-items:center;justify-content:center;text-align:center;padding:clamp(2rem,7vw,4rem) 1.4rem}
+  .enso-wrap{position:relative;width:clamp(118px,30vw,168px);height:clamp(118px,30vw,168px);margin-bottom:clamp(1.4rem,4vw,2.2rem)}
+  .enso-wrap::before{content:"";position:absolute;inset:-32%;border-radius:50%;
+    background:radial-gradient(circle,rgba(202,162,88,.16),transparent 65%);animation:glow 7s ease-in-out infinite}
+  .enso{width:100%;height:100%;display:block;transform-origin:50% 50%;animation:spin 96s linear infinite, breathe 7s ease-in-out infinite}
+  .enso path{stroke:url(#goldgrad);stroke-width:2.4;fill:none;stroke-linecap:round}
+  .brand-title{font-family:var(--serif);font-weight:500;line-height:1.04;font-size:clamp(2.3rem,8.5vw,4.1rem);max-width:14ch}
+  .tagline{font-family:var(--serif);font-style:italic;color:var(--gold-bright);font-size:clamp(1.15rem,4vw,1.5rem);margin-top:1.05rem}
+  .home-meta{font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--bone-dim);
+    margin-top:1.6rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;justify-content:center}
+  .home-meta .dot{width:5px;height:5px;border:1px solid var(--gold);border-radius:50%}
+  .home-actions{display:flex;gap:.7rem;margin-top:clamp(2rem,5vw,2.6rem);flex-wrap:wrap;justify-content:center}
+  .credit{margin-top:auto;padding-top:2.6rem;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--bone-dim);opacity:.75}
+
+  #view-cats{padding:clamp(2rem,6vw,3.4rem) clamp(1.1rem,4vw,2.4rem) 3rem;max-width:1040px;width:100%;margin:0 auto}
+  .eyebrow{font-size:.66rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .cats-head{margin-bottom:clamp(1.8rem,4vw,2.6rem)}
+  .cats-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(1.9rem,5.5vw,2.9rem);line-height:1.1;margin-top:.7rem}
+  .cats-head p{color:var(--bone-dim);font-family:var(--serif);font-style:italic;font-size:1.18rem;margin-top:.6rem;max-width:48ch}
+  .cats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(.7rem,2vw,1rem)}
+  @media(min-width:680px){.cats-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:980px){.cats-grid{grid-template-columns:repeat(5,1fr)}}
+  .cat-card{position:relative;text-align:left;cursor:pointer;background:var(--ink-2);border:1px solid var(--line);border-radius:14px;
+    padding:1.15rem 1.1rem 1.25rem;min-height:138px;display:flex;flex-direction:column;justify-content:space-between;gap:1rem;
+    color:var(--bone);overflow:hidden;transition:border-color .35s var(--ease),transform .35s var(--ease),background .35s var(--ease)}
+  .cat-card:hover,.cat-card:focus-visible{border-color:var(--gold);transform:translateY(-4px);background:var(--ink-3)}
+  .cat-card::after{content:"";position:absolute;inset:0;border-radius:14px;opacity:0;
+    background:radial-gradient(120% 100% at 0% 0%,rgba(202,162,88,.12),transparent 60%);transition:opacity .35s var(--ease)}
+  .cat-card:hover::after,.cat-card:focus-visible::after{opacity:1}
+  .cat-card.is-yours,.cat-card.is-endless{border-style:dashed}
+  .cat-card.is-endless .cat-numeral{opacity:1}
+  .cat-numeral{font-family:var(--serif);font-size:1.7rem;color:var(--gold);opacity:.75;font-weight:500;line-height:1}
+  .cat-name{font-family:var(--serif);font-weight:500;font-size:1.4rem;line-height:1.1}
+  .cat-count{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim);margin-top:.35rem}
+
+  #view-read{flex:1}
+  .read-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    padding:1rem clamp(1.1rem,4vw,2.4rem);border-bottom:1px solid var(--line)}
+  .read-back{display:flex;align-items:center;gap:.5rem;background:none;border:0;cursor:pointer;color:var(--bone-dim);
+    font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;transition:color .25s var(--ease);padding:.4rem .1rem}
+  .read-back:hover,.read-back:focus-visible{color:var(--gold-bright)}
+  .read-counter{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-dim);font-variant-numeric:tabular-nums}
+  .read-counter b{color:var(--gold)}
+  .read-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:clamp(2.5rem,8vw,5rem) clamp(1.4rem,6vw,2rem);position:relative;touch-action:pan-y}
+  .read-eyebrow{font-size:.62rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:clamp(1.8rem,5vw,2.8rem);opacity:.85}
+  .quote{max-width:24ch}
+  .quote.enter{animation:quoteIn .55s var(--ease)}
+  @keyframes quoteIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .q-a{font-family:var(--serif);font-weight:500;line-height:1.12;font-size:clamp(2rem,7vw,3.5rem)}
+  .q-div{width:9px;height:9px;border:1.3px solid var(--gold);border-radius:50%;margin:clamp(1rem,3vw,1.5rem) auto;opacity:.85}
+  .q-b{font-family:var(--serif);font-style:italic;color:var(--gold-bright);line-height:1.16;font-size:clamp(1.4rem,5vw,2.3rem)}
+  .quote.q-long{max-width:27ch}
+  .quote.q-long .q-a{font-size:clamp(1.6rem,5.4vw,2.7rem)}
+  .quote.q-long .q-b{font-size:clamp(1.35rem,4.7vw,2.05rem)}
+  .quote.q-long .q-div{margin:clamp(.8rem,2.4vw,1.2rem) auto}
+  .read-actions{display:flex;align-items:center;justify-content:center;gap:.5rem;
+    padding:1.1rem clamp(1.1rem,4vw,2.4rem) calc(1.4rem + env(safe-area-inset-bottom));border-top:1px solid var(--line);flex-wrap:wrap}
+  .nav-btn{font-family:var(--sans);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;background:none;border:1px solid var(--line-2);
+    border-radius:999px;color:var(--bone);cursor:pointer;padding:.7rem 1.15rem;display:flex;align-items:center;gap:.45rem;
+    transition:border-color .3s var(--ease),color .3s var(--ease)}
+  .nav-btn:hover,.nav-btn:focus-visible{border-color:var(--gold);color:var(--gold-bright)}
+  .read-actions .spacer{flex:0 0 .4rem}
+  .ibtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line-2);background:none;color:var(--bone);cursor:pointer;
+    display:grid;place-items:center;transition:border-color .3s var(--ease),color .3s var(--ease)}
+  .ibtn:hover,.ibtn:focus-visible{border-color:var(--gold);color:var(--gold-bright)}
+  .ibtn svg{width:19px;height:19px}
+  .ibtn.is-on{color:var(--gold);border-color:var(--gold)}
+  .ibtn.is-on svg{fill:var(--gold)}
+  .ibtn--del:hover,.ibtn--del:focus-visible{border-color:#D08A78;color:#E2A08F}
+
+  #view-saved{padding:clamp(2rem,6vw,3.4rem) clamp(1.1rem,4vw,2.4rem) 3rem;max-width:780px;width:100%;margin:0 auto}
+  .saved-head{margin-bottom:2rem}
+  .saved-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(1.9rem,5.5vw,2.7rem);margin-top:.6rem}
+  .saved-list{display:flex;flex-direction:column;gap:.7rem}
+  .saved-item{position:relative;background:var(--ink-2);border:1px solid var(--line);border-radius:13px;padding:1.3rem 3.2rem 1.3rem 1.4rem}
+  .saved-item .s-a{font-family:var(--serif);font-size:1.45rem;font-weight:500;line-height:1.15}
+  .saved-item .s-b{font-family:var(--serif);font-style:italic;color:var(--gold-bright);font-size:1.18rem;margin-top:.25rem}
+  .s-remove{position:absolute;top:1rem;right:1rem;width:34px;height:34px;border-radius:50%;border:1px solid var(--line-2);
+    background:none;color:var(--bone-dim);cursor:pointer;display:grid;place-items:center;transition:color .25s var(--ease),border-color .25s var(--ease)}
+  .s-remove:hover,.s-remove:focus-visible{color:var(--gold-bright);border-color:var(--gold)}
+  .s-remove svg{width:15px;height:15px}
+  .empty{text-align:center;padding:clamp(3rem,9vw,5rem) 1rem;border:1px dashed var(--line-2);border-radius:16px}
+  .empty .ring{width:34px;height:34px;border:1.4px solid var(--gold);border-radius:50%;margin:0 auto 1.4rem;opacity:.8}
+  .empty p{font-family:var(--serif);font-style:italic;font-size:1.4rem;color:var(--bone);max-width:30ch;margin:0 auto 1.7rem;line-height:1.3}
+
+  .modal{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:1.2rem;
+    background:rgba(10,8,16,.74);backdrop-filter:blur(6px)}
+  .modal.open{display:flex;animation:viewIn .3s var(--ease)}
+  .modal-card{background:var(--ink-2);border:1px solid var(--line-2);border-radius:18px;padding:1.6rem 1.5rem;max-width:440px;width:100%}
+  .modal-card h3{font-family:var(--serif);font-weight:500;font-size:1.7rem}
+  .modal-hint{color:var(--bone-dim);font-size:.84rem;margin-top:.4rem;line-height:1.45}
+  .modal textarea{width:100%;margin-top:1rem;background:var(--ink);border:1px solid var(--line-2);border-radius:12px;color:var(--bone);
+    font-family:var(--serif);font-size:1.25rem;line-height:1.4;padding:.9rem 1rem;resize:vertical;min-height:120px}
+  .modal textarea:focus{outline:none;border-color:var(--gold)}
+  .modal textarea::placeholder{color:var(--bone-dim);opacity:.55}
+  .modal-actions{display:flex;gap:.7rem;justify-content:flex-end;margin-top:1.2rem}
+
+  .toast{position:fixed;left:50%;bottom:calc(1.6rem + env(safe-area-inset-bottom));transform:translate(-50%,140%);z-index:50;
+    background:var(--ink-3);border:1px solid var(--gold);color:var(--gold-bright);font-family:var(--serif);font-style:italic;font-size:1.05rem;
+    padding:.7rem 1.4rem;border-radius:999px;transition:transform .45s var(--ease);box-shadow:0 18px 40px rgba(0,0,0,.45);max-width:90vw;text-align:center}
+  .toast.show{transform:translate(-50%,0)}
+
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+  @media (prefers-reduced-motion: reduce){.enso,.enso-wrap::before{animation:none}.view.is-active,.quote.enter,.modal.open{animation:none}*{scroll-behavior:auto}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+  @keyframes glow{0%,100%{opacity:.55}50%{opacity:1}}
+</style>
+</head>
+<body data-view="home">
+<div id="app">
+
+  <header class="topbar">
+    <button class="brand" id="brandBtn" aria-label="Go home"><span class="ring"></span><b>Quotes for a <span class="full">Philosophical </span>Mind</b></button>
+    <div class="bar-actions">
+      <button class="chip" id="addBtn" aria-label="Add your own truth">✛ Add</button>
+      <button class="chip" id="savedBtn">Saved <span class="pip" id="savedPip">0</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="view is-active" id="view-home">
+      <div class="enso-wrap">
+        <svg class="enso" viewBox="0 0 160 160" aria-hidden="true">
+          <defs><linearGradient id="goldgrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#8E6E2E"/><stop offset=".5" stop-color="#E6C77E"/><stop offset="1" stop-color="#B98F3F"/>
+          </linearGradient></defs>
+          <path d="M 119 38 A 62 62 0 1 0 132 86" />
+        </svg>
+      </div>
+      <h1 class="brand-title">Quotes for a Philosophical Mind</h1>
+      <p class="tagline">Flawless logic. Completely useless.</p>
+      <div class="home-meta"><span id="mTruths">truths</span><span class="dot"></span><span id="mChambers">more</span></div>
+      <div class="home-actions">
+        <button class="btn btn--solid" id="enterBtn">Browse topics</button>
+        <button class="btn" id="surpriseBtn">Surprise me</button>
+        <button class="btn" id="addBtnHome">✛ Add your own</button>
+      </div>
+      <p class="credit">Cyberwolf Studio · 100% logically correct, 0% helpful</p>
+    </section>
+
+    <section class="view" id="view-cats">
+      <div class="cats-head">
+        <span class="eyebrow">The Collection</span>
+        <h2>Pick a topic.</h2>
+        <p>Every line is flawlessly correct and completely useless. Open Endless for a supply that never runs out.</p>
+      </div>
+      <div class="cats-grid" id="catsGrid"></div>
+    </section>
+
+    <section class="view" id="view-read">
+      <div class="read-head">
+        <button class="read-back" id="backBtn">‹ <span id="backLabel">Topics</span></button>
+        <div class="read-counter" id="counter"></div>
+      </div>
+      <div class="read-stage" id="stage">
+        <div class="read-eyebrow" id="readEyebrow"></div>
+        <div class="quote" id="quote"></div>
+      </div>
+      <div class="read-actions">
+        <button class="nav-btn" id="prevBtn">‹ Prev</button>
+        <span class="spacer"></span>
+        <button class="ibtn" id="saveBtn" aria-label="Save this truth" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7.5-4.6-9.7-9.2C.9 8.6 2.3 5.5 5.3 5.1 7 4.9 8.6 5.8 9.5 7.2 10.4 5.8 12 4.9 13.7 5.1c3 .4 4.4 3.5 3 6.7C19.5 16.4 12 21 12 21z"/></svg>
+        </button>
+        <button class="ibtn" id="copyBtn" aria-label="Copy this truth">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>
+        </button>
+        <button class="ibtn ibtn--del" id="delBtn" aria-label="Delete this truth" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg>
+        </button>
+        <span class="spacer"></span>
+        <button class="nav-btn" id="nextBtn">Next ›</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-saved">
+      <div class="saved-head"><span class="eyebrow">Your Collection</span><h2>Saved truths</h2></div>
+      <div id="savedBody"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Add your own truth">
+    <h3>Add your own truth</h3>
+    <p class="modal-hint">One line per row. The last line is the punchline. Two lines minimum.</p>
+    <textarea id="addInput" rows="4" placeholder="Nobody can read your mind&#10;if you think nothing at all"></textarea>
+    <div class="modal-actions">
+      <button class="btn" id="addCancel">Cancel</button>
+      <button class="btn btn--solid" id="addSave">Add truth</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const CHAMBERS = [
+    { n:"I", title:"On Food", quotes:[
+      ["Nobody can steal your food","if you've got nothing to eat"],
+      ["You can never burn the dish","if you never cook"],
+      ["No one can take the last slice","if you ate it first"],
+      ["Nobody can finish your fries","if you guard them with your life,","and trust absolutely no one"],
+      ["You'll never overcook the rice","if you never turn on the stove"],
+      ["If the milk can go bad,","then drink it before you buy it"],
+      ["You'll never spill your drink","if your glass is forever empty"],
+      ["Nobody can judge your cooking","if you always order takeout"],
+      ["The pizza can never go cold","if you eat it before it arrives"],
+      ["You can never run out of snacks","if you finish them instantly,","removing all the suspense"],
+      ["A diet can never fail","if you simply never start it"],
+      ["The ice cream can never melt","if you eat it faster than science"],
+      ["No one can ask you to share","if you finish it in one bite"],
+    ]},
+    { n:"II", title:"On Feeling Inferior", quotes:[
+      ["Nobody can look down on you","if you're already on the floor"],
+      ["No one can underestimate you","if you set the bar underground"],
+      ["You can never disappoint anyone","if nobody expects anything"],
+      ["Nobody can outshine you","if you never turn on the light"],
+      ["No one can be better than you","at the things you never try"],
+      ["Nobody can reject you","if you never ask"],
+      ["You can never come last","if you never line up"],
+      ["Nobody can win an argument against you","if you just agree with everything"],
+      ["No one can beat you at chess","if you flip the board immediately"],
+      ["You can never lose a staring contest","if you close your eyes and call it a nap"],
+      ["Nobody can call you short","if you stand on a chair forever"],
+      ["No one can disrespect you","if nobody respects you to begin with"],
+      ["Nobody can wound your pride","if you have no pride left"],
+      ["No one can mock your reputation","if you have no reputation at all"],
+      ["You can never lose respect","if you never earned any"],
+      ["Nobody can take you down a peg","if you already live at the lowest peg"],
+    ]},
+    { n:"III", title:"On Attachment", quotes:[
+      ["You can never lose your friends,","if you simply never make any"],
+      ["Your dog can never break your heart,","if you refuse to love it back,","stay strong"],
+      ["No one can ever leave you,","if you push everyone away first,","a flawless plan"],
+      ["You can never miss home,","if you belong absolutely nowhere"],
+      ["Your favourite song can never end,","if you never press play"],
+      ["You can never lose your phone,","if you grow attached to a brick instead"],
+      ["Your memories can never hurt you,","if you make none worth keeping"],
+      ["You can never get your heart broken,","if you give it to no one,","and slowly turn to stone"],
+      ["You can never lose hope,","if you drop it early, just to be safe"],
+      ["Your team can never lose,","if you support absolutely no one"],
+      ["You can never miss your childhood,","if you refuse to enjoy a single day of it"],
+      ["Your idol can never let you down,","if you look up to nobody"],
+      ["You can never lose a good book,","if you never let one mean anything"],
+    ]},
+    { n:"IV", title:"On War & Strategy", quotes:[
+      ["If your enemy can predict your move,","then don't play the move"],
+      ["If your king can be checkmated,","then never bring him to the board"],
+      ["If the war can be lost,","then never declare it"],
+      ["If your soldiers can fall,","then send none,","and lose with honour"],
+      ["If your plan can fail,","then refuse to plan"],
+      ["Nobody can outsmart you","if you have no thoughts to steal"],
+      ["If the fortress can be breached,","then build no walls"],
+      ["Nobody can defeat your plan","if you don't have one"],
+      ["If your move can be countered,","then never move again"],
+      ["Nobody can checkmate you","if you eat the king"],
+      ["You can never lose the battle","if you call it a draw and leave"],
+      ["The enemy can never read your strategy","if you have no strategy,","and they cannot read"],
+    ]},
+    { n:"V", title:"On Success", quotes:[
+      ["You can never fail","if you never try"],
+      ["Nobody can crush your dreams","if you don't have any"],
+      ["You can never lose","if you never enter the game"],
+      ["Nobody can break your record","if you never set one"],
+      ["You'll never be a one-hit wonder","if you never have the one hit"],
+      ["No one can boo your performance","if you perform in an empty room"],
+      ["You can never trip on stage","if you refuse to go up"],
+      ["Nobody can reject your application","if you never apply,","and stay unemployed with dignity"],
+      ["No one can steal your spotlight","if you stand in the dark"],
+      ["You can never fall from the top","if you stay comfortably at the bottom"],
+    ]},
+    { n:"VI", title:"On Money", quotes:[
+      ["Nobody can rob you","if you're broke"],
+      ["No one can scam you","if you have nothing to give"],
+      ["You can never go bankrupt","if you never had money"],
+      ["The stock market can never crash on you","if you never invest"],
+      ["No one can charge you interest","if you never take a loan"],
+      ["You can never lose your wallet","if you never carry one,","or any money"],
+      ["Inflation can never hurt your savings","if you have no savings,","and never did"],
+      ["You can never overspend","if your card is permanently declined"],
+      ["Nobody can borrow money from you","if your pockets echo"],
+    ]},
+    { n:"VII", title:"On Friendship", quotes:[
+      ["No one can talk behind your back","if you never turn around"],
+      ["You'll never be left out","if you were never invited"],
+      ["No one can cancel the plan","if you were never told the plan"],
+      ["You can never be the third wheel","if there's no bicycle"],
+      ["Your friends can never forget your birthday","if they don't know you exist"],
+      ["No one can leave you on seen","if you only ever text your mother"],
+      ["No one can lose your number","if you give them a fake one"],
+      ["You can never lose a group-chat argument","if you agree with all 47 messages"],
+      ["Nobody can betray you","if you have no friends,","going great so far"],
+    ]},
+    { n:"VIII", title:"On Examinations", quotes:[
+      ["Nobody can copy your answers","if you left them blank"],
+      ["You can never fail the exam","if you never appear"],
+      ["You'll never get the wrong answer","if you never answer"],
+      ["Nobody can question your marks","if you score zero with confidence"],
+      ["If the homework can be checked,","then never submit it"],
+      ["You can never forget the syllabus","if you never learned it"],
+      ["The teacher can never catch you cheating","if you have nothing worth copying"],
+      ["You can never run out of time","if you sleep through the entire exam"],
+      ["No one can ask for your homework","if the dog evolved and ate it"],
+      ["You can never lose marks for spelling","if you write nothing at all"],
+      ["The report card can never upset your parents","if you intercept the postman"],
+    ]},
+    { n:"IX", title:"On Gaming", quotes:[
+      ["Nobody can beat your high score","if the game never loads"],
+      ["You can never rage quit","if you never press start"],
+      ["No one can steal your loot","if your inventory is empty"],
+      ["You'll never lag","if you never go online"],
+      ["If the boss can kill you,","then never enter the arena"],
+      ["Nobody can hack your account","if you never made one"],
+      ["No one can carry you","if you never join the lobby"],
+      ["You can never get a game over","if you never press continue"],
+      ["Your save file can never corrupt","if you never save,","and lose it all anyway"],
+      ["You can never miss the jump","if you set the controller down and walk away"],
+      ["Nobody can teamkill you","if you have no team,","and no friends"],
+    ]},
+    { n:"X", title:"On Life", quotes:[
+      ["You can never get lost","if you never leave home"],
+      ["Nobody can waste your time","if you have nothing to do"],
+      ["You'll never fall","if you never get up"],
+      ["If life can disappoint you,","then expect nothing from it"],
+      ["Monday can never ruin your week","if every day is equally ruined"],
+      ["You can never be late again","if you give up on time entirely"],
+      ["Rain can never spoil your plans","if you never make any"],
+      ["You can never trip","if you never walk,","and simply lie down"],
+      ["You can never lose your keys","if you refuse to lock anything,","inviting other problems"],
+    ]},
+    { n:"XI", title:"On the Body", quotes:[
+      ["If you smell something sweet,","then it is diabetes"],
+      ["If your chest hurts,","then you are dying —","or it is simply gas"],
+      ["If you cannot feel your legs,","then stop sitting on them"],
+      ["If the room is spinning,","then you are unwell,","or you stood up too fast"],
+      ["If your tooth hurts,","then it is the tooth,","or one standing near it"],
+      ["If you feel cold,","then you are, by definition, not warm"],
+      ["If your nose is blocked,","then breathe through the other one,","and if that fails, the mouth"],
+      ["If you're losing your hair,","then it is going somewhere,","and it is not coming back"],
+      ["If your eyes hurt at the screen,","then close them,","and enjoy the sudden productivity"],
+      ["If your stomach growls,","then feed it,","or introduce it to a louder stomach"],
+      ["If you can't sleep,","then stay awake,","it is the only known alternative"],
+      ["If your back hurts at sixteen,","then congratulations,","you are now forty"],
+    ]},
+    { n:"XII", title:"On Fear", quotes:[
+      ["Nothing can scare you in the dark","if you never open your eyes"],
+      ["The monster under the bed can't reach you","if you own no bed,","and sleep standing up"],
+      ["You can never be afraid of heights","if you never leave the ground"],
+      ["Ghosts can never haunt your house","if you never own a house"],
+      ["Nobody can jumpscare you","if you're already screaming"],
+      ["Stage fright can never strike you","if you never take the stage"],
+      ["The dentist can never hurt you","if you cancel every appointment forever,","and let fate decide"],
+    ]},
+    { n:"XIII", title:"On Technology", quotes:[
+      ["No one can hack your password","if you forget it too"],
+      ["Your phone can never die","if you never charge it,","and it's already dead"],
+      ["You can never be left on read","if you send nothing"],
+      ["The wifi can never disconnect","if you were never connected"],
+      ["Your post can never flop","if you never hit upload"],
+      ["No one can screenshot your message","if you never type it"],
+      ["Autocorrect can never embarrass you","if you stop forming words entirely"],
+      ["The printer can never jam","if you accept that it has already won"],
+      ["Your battery can never hit one percent","if you live permanently at zero"],
+    ]},
+    { n:"XIV", title:"On Time", quotes:[
+      ["You can never be early","if you never leave"],
+      ["The deadline can never pass you","if you never accept the task"],
+      ["You can never waste the weekend","if every day feels identical"],
+      ["Tomorrow can never disappoint you","if you expect it to never arrive"],
+      ["You can never be out of time","if you stopped counting years ago"],
+      ["The alarm can never wake you","if you set it for a time that doesn't exist"],
+    ]},
+    { n:"XV", title:"On Appearance", quotes:[
+      ["No one can call you ugly in photos","if you appear in none"],
+      ["Your haircut can never be ruined","if you have no hair to ruin"],
+      ["You can never wear a bad outfit","if you wear the same one forever"],
+      ["Nobody can judge your smile","if you simply never smile"],
+      ["You can never have a bad hair day","if you accept every day equally"],
+      ["No one can say you look tired","if you wear sunglasses indoors with confidence"],
+    ]},
+    { n:"XVI", title:"On Laziness", quotes:[
+      ["You can never lose motivation","if you never had any"],
+      ["Nobody can call you lazy at the gym","if you never enter the gym"],
+      ["You can never burn out","if you never light the fire"],
+      ["Your streak can never break","if you never start it"],
+      ["You can never quit halfway","if you quit at the very start"],
+      ["You can never procrastinate","if you've already given up"],
+    ]},
+    { n:"XVII", title:"On Wisdom", quotes:[
+      ["No one can misquote you","if you never say anything wise"],
+      ["You can never be proven wrong","if you make no claims at all"],
+      ["Nobody can argue with your logic","if your logic leads nowhere"],
+      ["A great idea can never be forgotten","if you never have one to forget"],
+      ["You can never overthink it","if you refuse to think at all"],
+      ["No one can question your beliefs","if you believe in nothing"],
+      ["You can never give bad advice","if you only ever say it depends"],
+    ]},
+    { n:"XVIII", title:"On Travel", quotes:[
+      ["You can never miss your flight","if you never book one"],
+      ["No one can give you a parking ticket","if you never own a car"],
+      ["You can never get lost on the highway","if you never leave the driveway"],
+      ["Your luggage can never be lost","if you travel with nothing,","and own even less"],
+      ["You can never crash","if the engine never starts"],
+      ["The GPS can never mislead you","if you simply never arrive anywhere"],
+    ]},
+    { n:"XIX", title:"On Animals", quotes:[
+      ["Your dog can never run away","if you never get a dog"],
+      ["A bear can never outrun you","so simply don't invite one home"],
+      ["Your cat can never ignore you","if you never adopt one,","though it would ignore you anyway"],
+      ["The goldfish can never forget you","if it has nothing to remember"],
+      ["You can never be bitten by a snake","if you never befriend one"],
+      ["The parrot can never reveal your secrets","if you tell it nothing"],
+    ]},
+    { n:"XX", title:"On Dreams", quotes:[
+      ["Don't let go of your dreams,","don't wake up"],
+      ["Nobody can shatter your dream career","if you hold no ambitions"],
+      ["Your bucket list can never go unfinished","if the bucket stays empty"],
+      ["You can never fail to change the world","if you never try to"],
+      ["No one can crush your big plans","if your plans stay imaginary"],
+      ["You can never wake from the dream","if you never fall asleep"],
+      ["Your goals can never be missed","if you set none,","and aim at the wall"],
+    ]},
+    { n:"∞", title:"Endless", isEndless:true, quotes:[] },
+    { n:"✦", title:"Yours", isYours:true, quotes:[] },
+  ];
+
+  // ---------------- the generator: effectively unlimited self-defeating truths ----------------
+  const NOUNS = ["money","talent","patience","snacks","secrets","plans","skills","drama","shame","rhythm","charm","luck",
+    "fans","followers","savings","motivation","regrets","enemies","fears","weaknesses","standards","expectations",
+    "responsibilities","deadlines","feelings","opinions","problems","chores","hobbies","manners","willpower","focus",
+    "energy","ideas","goals","ambition","confidence","style","taste","vibes","clout","brain cells","notifications",
+    "subscriptions","study notes","high scores","table manners","second chances","good excuses","witty comebacks",
+    "life choices","hot takes","unread messages","trust issues","good habits","bad habits","backup plans","gym gains",
+    "screen time","free time","pocket money","beauty sleep","peace of mind","spare time","loose change","friends",
+    "homework","leftovers","achievements","dance moves","social skills","common sense","deep thoughts","original ideas",
+    "strong opinions","hidden talents","gaming skills","lucky breaks","glory days","bold dreams","grand plans",
+    "fresh starts","loose ends","side quests","plot armor","character development","rizz","drip","aura","mad skills",
+    "spare brain cells","study streaks","reading streaks","water intake","vegetables","weekend plans","group chats",
+    "inside jokes","sick beats","new year resolutions","gym memberships","self-control","willingness to learn",
+    "good intentions","spare keys","wild ideas","big feelings","class participation","attendance","extra credit"];
+
+  const ACTS = ["running","studying","dancing","singing","cooking","fighting","racing","drawing","swimming","coding",
+    "presenting","public speaking","parallel parking","small talk","growing up","trying","showing up","applying",
+    "competing","planning","adulting","cleaning","exercising","budgeting","networking","negotiating","apologising",
+    "multitasking","waking up early","making friends","finishing things","being on time","paying attention",
+    "doing laundry","reading the manual","saving money","keeping promises","staying focused","starting things"];
+
+  const TAGS = ["stay strong","a flawless plan","genius","going great so far","what could possibly go wrong",
+    "truly unbeatable","big brain move","problem solved","you are free now","checkmate"];
+
+  const N_TMPL = [
+    N=>["You can never lose your "+N+",","if you never had any "+N],
+    N=>["Nobody can take your "+N+",","if you have no "+N],
+    N=>["No one can ruin your "+N+",","if you have no "+N+" to ruin"],
+    N=>["Your "+N+" can never let you down,","if you have no "+N],
+    N=>["You can never run out of "+N+",","if you start with none"],
+    N=>["No one can judge your "+N+",","if you hide your "+N+" forever"],
+    N=>["Nobody can copy your "+N+",","if you have no "+N+" worth copying"],
+    N=>["You can never waste your "+N+",","if you have none to begin with"],
+  ];
+  const A_TMPL = [
+    A=>["You can never fail at "+A+",","if you never start "+A],
+    A=>["No one can beat you at "+A+",","if you refuse to begin"],
+    A=>["You can never be bad at "+A+",","if you avoid "+A+" entirely"],
+    A=>["Nobody can question your skill at "+A+",","if you never attempt "+A],
+  ];
+  const N2_TMPL = [
+    (a,b)=>["Nobody can take your "+a+",","if you have no "+a+",","and no "+b+" either"],
+    (a,b)=>["You can never lose your "+a+",","if you have "+b+" instead,","a bold move"],
+  ];
+  const N3_TMPL = [
+    (a,b,c)=>["No one can take your "+a+", "+b+", or "+c+",","because you have none of them"],
+    (a,b,c)=>["You are completely safe,","with no "+a+", no "+b+",","and absolutely no "+c],
+  ];
+
+  function rand(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function diff(a){ let x=rand(a); return x; }
+  function maybeTag(lines){
+    if(Math.random()<0.33){ const t=rand(TAGS); if(t) return lines.concat([t]); }
+    return lines;
+  }
+  function genQuote(){
+    const r=Math.random();
+    if(r<0.50){ return maybeTag(rand(N_TMPL)(rand(NOUNS))); }
+    if(r<0.66){ return maybeTag(rand(A_TMPL)(rand(ACTS))); }
+    if(r<0.86){ let a=rand(NOUNS),b=rand(NOUNS); while(b===a)b=rand(NOUNS); return rand(N2_TMPL)(a,b); }
+    let a=rand(NOUNS),b=rand(NOUNS),c=rand(NOUNS); return rand(N3_TMPL)(a,b,c);
+  }
+
+  // ---------------- state ----------------
+  const SKEY="pmind.saved.v2", YKEY="pmind.yours.v1";
+  let saved=new Set();
+  let mode="topic";          // "topic" | "endless"
+  let cur={cat:0,q:0};
+  let curLines=[];
+  let returnView="cats";
+
+  const YOURS_IDX=CHAMBERS.findIndex(c=>c.isYours);
+  const YOURS=CHAMBERS[YOURS_IDX];
+
+  function loadSaved(){ try{ const r=localStorage.getItem(SKEY); if(r) saved=new Set(JSON.parse(r)); }catch(e){} }
+  function persistSaved(){ try{ localStorage.setItem(SKEY, JSON.stringify([...saved])); }catch(e){} }
+  function loadYours(){ try{ const r=localStorage.getItem(YKEY); if(r){ const a=JSON.parse(r); if(Array.isArray(a)) YOURS.quotes=a; } }catch(e){} }
+  function persistYours(){ try{ localStorage.setItem(YKEY, JSON.stringify(YOURS.quotes)); }catch(e){} }
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  const keyOf = lines => lines.join("\n");
+
+  const $=s=>document.querySelector(s);
+  const views={ home:$("#view-home"), cats:$("#view-cats"), read:$("#view-read"), saved:$("#view-saved") };
+  const elQuote=$("#quote"), elCounter=$("#counter"), elBackLabel=$("#backLabel"), elSave=$("#saveBtn"),
+        elPip=$("#savedPip"), elReadEyebrow=$("#readEyebrow"), elToast=$("#toast"), modal=$("#modal"), addInput=$("#addInput"), elDel=$("#delBtn");
+
+  function writtenCount(){ return CHAMBERS.filter(c=>!c.isEndless&&!c.isYours).reduce((s,c)=>s+c.quotes.length,0); }
+  function setMeta(){ $("#mTruths").textContent=writtenCount()+" written truths"; $("#mChambers").textContent="over a million generated"; }
+
+  function showView(name){
+    Object.values(views).forEach(v=>v.classList.remove("is-active"));
+    views[name].classList.add("is-active"); document.body.setAttribute("data-view",name);
+    if(name==="home") setMeta(); window.scrollTo(0,0);
+  }
+
+  function buildCats(){
+    const grid=$("#catsGrid"); grid.innerHTML="";
+    CHAMBERS.forEach((ch,i)=>{
+      const b=document.createElement("button");
+      b.className="cat-card"+(ch.isYours?" is-yours":"")+(ch.isEndless?" is-endless":"");
+      let count;
+      if(ch.isEndless) count="never-ending";
+      else if(ch.isYours) count = ch.quotes.length>0 ? ch.quotes.length+" truths" : "tap to add";
+      else count = ch.quotes.length+" truths";
+      b.innerHTML='<span class="cat-numeral">'+esc(ch.n)+'</span>'+
+        '<span><span class="cat-name">'+esc(ch.title)+'</span><span class="cat-count">'+count+'</span></span>';
+      b.addEventListener("click",()=>openCategory(i));
+      grid.appendChild(b);
+    });
+  }
+
+  function renderStage(title, counterHTML){
+    const last=curLines.length-1; let html="";
+    for(let i=0;i<last;i++) html+='<div class="q-a">'+esc(curLines[i])+'</div>';
+    if(curLines.length>1) html+='<div class="q-div"></div>';
+    html+='<div class="q-b">'+esc(curLines[last])+'</div>';
+    elQuote.innerHTML=html;
+    elQuote.classList.toggle("q-long", curLines.length>=3);
+    elReadEyebrow.textContent=title;
+    elCounter.innerHTML=counterHTML;
+    updateSaveBtn();
+    elDel.style.display = (mode==="topic" && cur.cat===YOURS_IDX) ? "grid" : "none";
+    elQuote.classList.remove("enter"); void elQuote.offsetWidth; elQuote.classList.add("enter");
+  }
+
+  function showTopic(i,q){
+    mode="topic"; cur={cat:i,q:q}; curLines=CHAMBERS[i].quotes[q];
+    renderStage(CHAMBERS[i].title, "<b>"+(q+1)+"</b> / "+CHAMBERS[i].quotes.length);
+    showView("read");
+  }
+  function showEndless(){ mode="endless"; curLines=genQuote(); renderStage("Endless","∞"); showView("read"); }
+
+  function openCategory(i){
+    const ch=CHAMBERS[i];
+    if(ch.isEndless){ returnView="cats"; elBackLabel.textContent="Topics"; showEndless(); return; }
+    if(ch.isYours && ch.quotes.length===0){ openModal(); return; }
+    returnView="cats"; elBackLabel.textContent="Topics"; showTopic(i,0);
+  }
+
+  function step(dir){
+    if(mode==="endless"){ curLines=genQuote(); renderStage("Endless","∞"); return; }
+    const len=CHAMBERS[cur.cat].quotes.length; cur.q=(cur.q+dir+len)%len; curLines=CHAMBERS[cur.cat].quotes[cur.q];
+    renderStage(CHAMBERS[cur.cat].title, "<b>"+(cur.q+1)+"</b> / "+len);
+  }
+
+  function surprise(){
+    returnView="home"; elBackLabel.textContent="Home";
+    if(Math.random()<0.45){ showEndless(); return; }
+    const pool=CHAMBERS.map((c,i)=>i).filter(i=>!CHAMBERS[i].isEndless && CHAMBERS[i].quotes.length>0);
+    const i=rand(pool), q=Math.floor(Math.random()*CHAMBERS[i].quotes.length);
+    showTopic(i,q);
+  }
+
+  function updateSaveBtn(){ const on=saved.has(keyOf(curLines)); elSave.classList.toggle("is-on",on); elSave.setAttribute("aria-pressed",on?"true":"false"); }
+  function toggleSave(){
+    const k=keyOf(curLines);
+    if(saved.has(k)) saved.delete(k); else { saved.add(k); toast("Saved. A truth that cannot be lost."); }
+    persistSaved(); updateSaveBtn(); updatePip();
+  }
+  function deleteCurrentYours(){
+    if(!(mode==="topic" && cur.cat===YOURS_IDX)) return;
+    YOURS.quotes.splice(cur.q,1); persistYours(); buildCats();
+    if(YOURS.quotes.length===0){ toast("Deleted. Your collection is empty."); showView(returnView); return; }
+    toast("Deleted from your collection."); showTopic(YOURS_IDX, Math.min(cur.q, YOURS.quotes.length-1));
+  }
+  function copyQuote(){
+    const text=keyOf(curLines), done=()=>toast("Copied. Use it unwisely.");
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(()=>fb(text,done));
+    else fb(text,done);
+  }
+  function fb(text,done){const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+
+  function updatePip(){ elPip.textContent=saved.size; }
+  function renderSaved(){
+    const body=$("#savedBody");
+    if(saved.size===0){
+      body.innerHTML='<div class="empty"><div class="ring"></div>'+
+        '<p>You have saved nothing — which, as these pages teach, can never be lost.</p>'+
+        '<button class="btn btn--solid" id="findBtn">Find some wisdom</button></div>';
+      $("#findBtn").addEventListener("click",()=>{ buildCats(); showView("cats"); });
+      return;
+    }
+    const list=document.createElement("div"); list.className="saved-list";
+    [...saved].forEach(txt=>{
+      const lines=txt.split("\n"), last=lines.length-1, top=lines.slice(0,last).map(esc).join("<br>");
+      const item=document.createElement("div"); item.className="saved-item";
+      item.innerHTML='<div class="s-a">'+top+'</div><div class="s-b">'+esc(lines[last])+'</div>'+
+        '<button class="s-remove" aria-label="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+      item.querySelector(".s-remove").addEventListener("click",()=>{ saved.delete(txt); persistSaved(); updatePip(); renderSaved(); });
+      list.appendChild(item);
+    });
+    body.innerHTML=""; body.appendChild(list);
+  }
+
+  function openModal(){ addInput.value=""; modal.classList.add("open"); modal.setAttribute("aria-hidden","false"); setTimeout(()=>addInput.focus(),60); }
+  function closeModal(){ modal.classList.remove("open"); modal.setAttribute("aria-hidden","true"); }
+  function handleAdd(){
+    const lines=(addInput.value||"").split("\n").map(s=>s.trim()).filter(Boolean);
+    if(lines.length<2){ toast("Add at least two lines — a setup and a punchline."); return; }
+    YOURS.quotes.push(lines); persistYours(); buildCats(); closeModal();
+    returnView="cats"; elBackLabel.textContent="Topics"; showTopic(YOURS_IDX, YOURS.quotes.length-1);
+    toast("Added to your collection.");
+  }
+
+  let toastTimer;
+  function toast(msg){ elToast.textContent=msg; elToast.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>elToast.classList.remove("show"),2000); }
+
+  let sx=0,sy=0; const stage=$("#stage");
+  stage.addEventListener("touchstart",e=>{ sx=e.changedTouches[0].clientX; sy=e.changedTouches[0].clientY; },{passive:true});
+  stage.addEventListener("touchend",e=>{ const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)) step(dx<0?1:-1); },{passive:true});
+
+  document.addEventListener("keydown",e=>{
+    if(modal.classList.contains("open")){ if(e.key==="Escape") closeModal(); return; }
+    if(document.body.getAttribute("data-view")!=="read") return;
+    if(e.key==="ArrowRight") step(1); else if(e.key==="ArrowLeft") step(-1);
+    else if(e.key==="Escape") showView(returnView==="home"?"home":"cats");
+  });
+
+  $("#enterBtn").addEventListener("click",()=>{ buildCats(); showView("cats"); });
+  $("#surpriseBtn").addEventListener("click",surprise);
+  $("#addBtnHome").addEventListener("click",openModal);
+  $("#addBtn").addEventListener("click",openModal);
+  $("#brandBtn").addEventListener("click",()=>showView("home"));
+  $("#savedBtn").addEventListener("click",()=>{ renderSaved(); showView("saved"); });
+  $("#backBtn").addEventListener("click",()=>showView(returnView));
+  $("#prevBtn").addEventListener("click",()=>step(-1));
+  $("#nextBtn").addEventListener("click",()=>step(1));
+  elSave.addEventListener("click",toggleSave);
+  $("#copyBtn").addEventListener("click",copyQuote);
+  elDel.addEventListener("click",deleteCurrentYours);
+  $("#addCancel").addEventListener("click",closeModal);
+  $("#addSave").addEventListener("click",handleAdd);
+  modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
+
+  loadSaved(); loadYours(); updatePip(); buildCats(); setMeta();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
