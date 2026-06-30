@@ -166,6 +166,42 @@
   .toast.show{transform:translate(-50%,0)}
 
   :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+
+  /* ---------- OUR GREAT PHILOSOPHERS ---------- */
+  .home-phil-btn{margin-top:.9rem;border-color:var(--gold);color:var(--gold-bright)}
+  #view-phil{padding:clamp(2rem,6vw,3.4rem) clamp(1.1rem,4vw,2.4rem) 3rem;max-width:880px;width:100%;margin:0 auto}
+  .phil-head{margin-bottom:clamp(1.8rem,4vw,2.4rem)}
+  .phil-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(1.9rem,5.5vw,2.7rem);line-height:1.1;margin-top:.7rem}
+  .phil-head p{color:var(--bone-dim);font-family:var(--serif);font-style:italic;font-size:1.12rem;margin-top:.6rem;max-width:48ch}
+
+  .phil-group{margin-bottom:clamp(1.6rem,4vw,2.2rem)}
+  .phil-group-title{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+  .phil-group-title .crest{font-family:var(--serif);font-weight:600;font-size:1.1rem;letter-spacing:.04em;padding:.2rem .85rem;border-radius:999px}
+  .phil-group-title.mvp .crest{background:linear-gradient(90deg,#8E6A12,#E6C77E,#8E6A12);color:#1A140A}
+  .phil-group-title.vip .crest{background:rgba(154,175,212,.16);color:#A9BCE0;border:1px solid rgba(154,175,212,.45)}
+  .phil-group-title .crest-sub{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-dim)}
+
+  .phil-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
+  @media(min-width:680px){.phil-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:880px){.phil-grid.mvp-grid{grid-template-columns:repeat(2,1fr)}}
+
+  .phil-card{position:relative;background:var(--ink-2);border:1px solid var(--line);border-radius:14px;
+    padding:1.1rem 1.15rem 1.05rem;overflow:hidden;transition:border-color .3s var(--ease),transform .3s var(--ease)}
+  .phil-card:hover{transform:translateY(-3px)}
+  .phil-card.mvp{border-color:rgba(202,162,88,.4)}
+  .phil-card.mvp:hover{border-color:var(--gold)}
+  .phil-card.mvp::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(140% 100% at 0% 0%,rgba(202,162,88,.10),transparent 60%)}
+  .phil-card.vip{border-color:rgba(154,175,212,.35)}
+  .phil-card.vip:hover{border-color:#9AAFD4}
+
+  .phil-rank{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;display:inline-block}
+  .phil-card.mvp .phil-rank{color:var(--gold-bright)}
+  .phil-card.vip .phil-rank{color:#9AAFD4}
+  .phil-name{font-family:var(--serif);font-weight:600;font-size:1.25rem;line-height:1.18;word-break:break-word}
+  .phil-tag{font-family:var(--serif);font-style:italic;color:var(--bone-dim);font-size:.98rem;margin-top:.3rem;line-height:1.3}
+  .phil-tag::before{content:"“";color:var(--gold);opacity:.7}
+  .phil-tag::after{content:"”";color:var(--gold);opacity:.7}
   @media (prefers-reduced-motion: reduce){.enso,.enso-wrap::before{animation:none}.view.is-active,.quote.enter,.modal.open{animation:none}*{scroll-behavior:auto}}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
@@ -178,6 +214,7 @@
   <header class="topbar">
     <button class="brand" id="brandBtn" aria-label="Go home"><span class="ring"></span><b>Quotes for a <span class="full">Philosophical </span>Mind</b></button>
     <div class="bar-actions">
+      <button class="chip" id="philBtn" aria-label="Our great philosophers">♕ Philosophers</button>
       <button class="chip" id="addBtn" aria-label="Add your own truth">✛ Add</button>
       <button class="chip" id="savedBtn">Saved <span class="pip" id="savedPip">0</span></button>
     </div>
@@ -201,6 +238,7 @@
         <button class="btn" id="surpriseBtn">Surprise me</button>
         <button class="btn" id="addBtnHome">✛ Add your own</button>
       </div>
+      <button class="btn home-phil-btn" id="philBtnHome">♕ Our Great Philosophers</button>
       <p class="credit">Cyberwolf Studio · 100% logically correct, 0% helpful</p>
     </section>
 
@@ -242,6 +280,15 @@
     <section class="view" id="view-saved">
       <div class="saved-head"><span class="eyebrow">Your Collection</span><h2>Saved truths</h2></div>
       <div id="savedBody"></div>
+    </section>
+
+    <section class="view" id="view-phil">
+      <div class="phil-head">
+        <span class="eyebrow">The Hall</span>
+        <h2>Our Great Philosophers</h2>
+        <p>The minds wise enough to know that nothing is worth holding onto — immortalised below.</p>
+      </div>
+      <div id="philBody"></div>
     </section>
   </main>
 </div>
@@ -431,6 +478,7 @@
       ["Autocorrect can never embarrass you","if you stop forming words entirely"],
       ["The printer can never jam","if you accept that it has already won"],
       ["Your battery can never hit one percent","if you live permanently at zero"],
+      ["With great machine","comes great electric bills"],
     ]},
     { n:"XIV", title:"On Time", quotes:[
       ["You can never be early","if you never leave"],
@@ -576,7 +624,7 @@
   const keyOf = lines => lines.join("\n");
 
   const $=s=>document.querySelector(s);
-  const views={ home:$("#view-home"), cats:$("#view-cats"), read:$("#view-read"), saved:$("#view-saved") };
+  const views={ home:$("#view-home"), cats:$("#view-cats"), read:$("#view-read"), saved:$("#view-saved"), phil:$("#view-phil") };
   const elQuote=$("#quote"), elCounter=$("#counter"), elBackLabel=$("#backLabel"), elSave=$("#saveBtn"),
         elPip=$("#savedPip"), elReadEyebrow=$("#readEyebrow"), elToast=$("#toast"), modal=$("#modal"), addInput=$("#addInput"), elDel=$("#delBtn");
 
@@ -714,7 +762,48 @@
     else if(e.key==="Escape") showView(returnView==="home"?"home":"cats");
   });
 
+  // ---------------- Our Great Philosophers ----------------
+  const PHILOSOPHERS = [
+    { tier:"mvp", name:"MVP_Vansh_Khetan", tag:"Thala for a reason 7777777" },
+    { tier:"mvp", name:"MVP_Aarav_sah", tag:"Bunny gamer" },
+    { tier:"mvp", name:"MVP_Sarthak_Patel", tag:"No 4G No 5G only Patel Gi" },
+    { tier:"mvp", name:"MVP_Rachit_Vyas", tag:"Not Rachit" },
+    { tier:"vip", name:"VIP_Raghvendra_Patel", tag:"" },
+  ];
+
+  function renderPhilosophers(){
+    const body=$("#philBody");
+    const mvps=PHILOSOPHERS.filter(p=>p.tier==="mvp");
+    const vips=PHILOSOPHERS.filter(p=>p.tier==="vip");
+
+    function cardHTML(p,i){
+      const tagHTML = p.tag ? '<div class="phil-tag">'+esc(p.tag)+'</div>' : '';
+      return '<div class="phil-card '+p.tier+'">'+
+        '<span class="phil-rank">'+p.tier.toUpperCase()+'</span>'+
+        '<div class="phil-name">'+esc(p.name)+'</div>'+
+        tagHTML+
+        '</div>';
+    }
+
+    let html="";
+    if(mvps.length){
+      html+='<div class="phil-group">'+
+        '<div class="phil-group-title mvp"><span class="crest">★ MVP</span>'+
+        '<span class="crest-sub">Most Valuable Philosophers</span></div>'+
+        '<div class="phil-grid mvp-grid">'+mvps.map(cardHTML).join("")+'</div></div>';
+    }
+    if(vips.length){
+      html+='<div class="phil-group">'+
+        '<div class="phil-group-title vip"><span class="crest">VIP</span>'+
+        '<span class="crest-sub">Very Important Philosophers</span></div>'+
+        '<div class="phil-grid">'+vips.map(cardHTML).join("")+'</div></div>';
+    }
+    body.innerHTML = html || '<div class="empty"><div class="ring"></div><p>No philosophers enshrined yet.</p></div>';
+  }
+
   $("#enterBtn").addEventListener("click",()=>{ buildCats(); showView("cats"); });
+  $("#philBtn").addEventListener("click",()=>{ renderPhilosophers(); showView("phil"); });
+  $("#philBtnHome").addEventListener("click",()=>{ renderPhilosophers(); showView("phil"); });
   $("#surpriseBtn").addEventListener("click",surprise);
   $("#addBtnHome").addEventListener("click",openModal);
   $("#addBtn").addEventListener("click",openModal);
