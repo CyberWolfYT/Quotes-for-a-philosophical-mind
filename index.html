@@ -1019,6 +1019,37 @@
     toast("Code accepted! Edit and save your quotes.");
   }
 
+  // ---------------- Profanity Filter ----------------
+  const BAD_WORDS = [
+    "fuck","shit","ass","bitch","bastard","damn","crap","piss","dick","cock",
+    "pussy","cunt","whore","slut","nigger","nigga","fag","faggot","retard",
+    "rape","kill","murder","suicide","porn","sex","nude","naked","boob","boobs",
+    "penis","vagina","balls","arse","asshole","bollocks","wanker","tosser",
+    "idiot","stupid","dumb","loser","ugly","hate","die","hell","motherfucker",
+    "bsdk","mc","bc","chutiya","madarchod","bhenchod","randi","harami","saala",
+    "gandu","lodu","lauda","bhosdi","gaand","kutta","haramkhor","lawde","lund"
+  ];
+
+  function stripSpaces(s){ return s.replace(/[\s\.\-_\*]+/g,""); }
+  function containsBadWord(text){
+    const lower = text.toLowerCase();
+    const stripped = stripSpaces(lower);
+    for(const w of BAD_WORDS){
+      // direct match
+      if(lower.includes(w)) return w;
+      // spaced out match (b a d, b.a.d, b-a-d etc)
+      if(stripped.includes(w)) return w;
+      // l33t speak: a→4/@ e→3 i→1/! o→0 s→5 t→7
+      const leet = lower
+        .replace(/4|@/g,"a").replace(/3/g,"e").replace(/1|!/g,"i")
+        .replace(/0/g,"o").replace(/5/g,"s").replace(/7/g,"t");
+      if(leet.includes(w)) return w;
+      const leetStripped = stripSpaces(leet);
+      if(leetStripped.includes(w)) return w;
+    }
+    return null;
+  }
+
   async function saveQuotes(id){
     const p = PHILOSOPHERS.find(x=>x.id===id);
     if(!p) return;
@@ -1026,6 +1057,19 @@
     const editor = document.getElementById("editor-"+id);
     const tas = editor.querySelectorAll("textarea");
     const quotes = Array.from(tas).map(ta=>ta.value.trim()).filter(Boolean);
+
+    // Check every quote for bad words
+    for(let i=0;i<quotes.length;i++){
+      const found = containsBadWord(quotes[i]);
+      if(found){
+        toast("Quote "+(i+1)+" contains a word that is not allowed. Please clean it up.");
+        tas[i].style.borderColor="#E07070";
+        tas[i].focus();
+        setTimeout(()=>{ tas[i].style.borderColor=""; },3000);
+        return;
+      }
+    }
+
     p.quotes = quotes;
     if(fbReady){
       try{
