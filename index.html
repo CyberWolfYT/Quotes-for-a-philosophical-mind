@@ -831,7 +831,7 @@
   FB_SCRIPT.type = 'module';
   FB_SCRIPT.textContent = `
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, getDocs, setDoc }
+    import { getFirestore, doc, getDoc, updateDoc, collection, getDocs, setDoc, deleteDoc }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     const app = initializeApp(${JSON.stringify({
       apiKey:"AIzaSyBtpgGAv2OS3OSo27tfIttBixPRXiQujCk",
@@ -843,7 +843,7 @@
     })});
     const db = getFirestore(app);
     window._qpmDB = db;
-    window._qpmFS = { doc, getDoc, updateDoc, collection, getDocs, setDoc };
+    window._qpmFS = { doc, getDoc, updateDoc, collection, getDocs, setDoc, deleteDoc };
     window.dispatchEvent(new Event('fbReady'));
   `;
   document.head.appendChild(FB_SCRIPT);
@@ -1098,37 +1098,113 @@
     const el = document.getElementById("devRoster");
     if(!el) return;
     if(!devUnlocked){ el.innerHTML='<div style="font-size:.75rem;color:var(--bone-dim)">Enter developer password above to manage members.</div>'; return; }
-    el.innerHTML = PHILOSOPHERS.map(p=>`
-      <div class="dev-row">
+
+    // Add member form at top
+    const addForm = `
+      <div style="background:rgba(120,220,120,.08);border:1px solid rgba(120,220,120,.25);border-radius:8px;padding:.8rem;margin-bottom:.7rem">
+        <div style="font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#78DC78;margin-bottom:.6rem">➕ Add New Member</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+          <input id="devAddName" placeholder="Display name e.g. MVP_John_Doe" style="font-family:var(--sans);font-size:.78rem;background:var(--ink);color:var(--bone);border:1px solid var(--line-2);border-radius:5px;padding:6px 9px;outline:none;width:100%"/>
+          <input id="devAddTag" placeholder="Gamer tag" style="font-family:var(--sans);font-size:.78rem;background:var(--ink);color:var(--bone);border:1px solid var(--line-2);border-radius:5px;padding:6px 9px;outline:none;width:100%"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem">
+          <select id="devAddTier" style="font-family:var(--sans);font-size:.78rem;background:var(--ink);color:var(--bone);border:1px solid var(--line-2);border-radius:5px;padding:6px 8px;cursor:pointer">
+            <option value="mvp">MVP</option>
+            <option value="vip">VIP</option>
+            <option value="dev">DEV</option>
+          </select>
+          <input id="devAddCode" placeholder="Code e.g. AB-MVP-1234" style="font-family:monospace;font-size:.78rem;background:var(--ink);color:var(--bone);border:1px solid var(--line-2);border-radius:5px;padding:6px 9px;outline:none;width:100%"/>
+          <button class="dev-apply-btn" style="background:rgba(120,220,120,.2)" onclick="devAddMember()">Add →</button>
+        </div>
+      </div>`;
+
+    const rows = PHILOSOPHERS.map(p=>`
+      <div class="dev-row" id="devrow-${p.id}">
         <div class="dev-row-name">${esc(p.name)}</div>
-        <div class="dev-row-code">${p.code}</div>
         <select id="devsel-${p.id}">
           <option value="mvp"${p.tier==="mvp"?" selected":""}>MVP</option>
           <option value="vip"${p.tier==="vip"?" selected":""}>VIP</option>
+          <option value="dev"${p.tier==="dev"?" selected":""}>DEV</option>
         </select>
-        <button class="dev-apply-btn" onclick="devChangeTier('${p.id}')">Apply</button>
+        <input id="devcode-${p.id}" value="${esc(p.code)}" placeholder="Code"
+          style="font-family:monospace;font-size:.65rem;background:var(--ink);color:var(--gold-bright);border:1px solid var(--line-2);border-radius:4px;padding:3px 7px;width:120px;outline:none"/>
+        <button class="dev-apply-btn" onclick="devApplyRow('${p.id}')">✓ Save</button>
+        <button class="dev-apply-btn" style="color:#E07070;border-color:rgba(224,112,112,.3)" onclick="devRemoveMember('${p.id}')">✕</button>
       </div>`).join("");
+
+    el.innerHTML = addForm + rows;
   }
 
-  async function devChangeTier(id){
+  async function devApplyRow(id){
     const p = PHILOSOPHERS.find(x=>x.id===id);
     if(!p) return;
     const newTier = document.getElementById("devsel-"+id).value;
-    const newLimit = newTier==="mvp" ? 4 : 2;
-    p.tier = newTier;
-    p.quoteLimit = newLimit;
+    const newCode = (document.getElementById("devcode-"+id).value||"").trim().toUpperCase();
+    if(!newCode){ toast("Code cannot be empty."); return; }
+    const newLimit = newTier==="mvp"?4:newTier==="dev"?4:2;
+    const isDev = newTier==="dev";
+    p.tier = newTier; p.quoteLimit = newLimit; p.code = newCode; p.isDev = isDev;
     if(fbReady){
       try{
         const db = window._qpmDB;
         const {doc, updateDoc} = window._qpmFS;
-        await updateDoc(doc(db,"philosophers",id),{ tier:newTier, quoteLimit:newLimit });
-        toast(`${p.name} moved to ${newTier.toUpperCase()}.`);
-      } catch(e){ toast("Changed locally — Firebase sync failed."); }
-    } else { toast(`${p.name} changed to ${newTier.toUpperCase()} (offline).`); }
+        await updateDoc(doc(db,"philosophers",id),{ tier:newTier, quoteLimit:newLimit, code:newCode });
+        toast(`${p.name} → ${newTier.toUpperCase()} · Code: ${newCode}`);
+      } catch(e){ toast("Saved locally — Firebase sync failed."); }
+    } else { toast(`${p.name} updated (offline).`); }
     renderPhilosophers();
     document.getElementById("devPanel").classList.add("open");
     devUnlocked = true;
     renderDevRoster();
+  }
+
+  async function devRemoveMember(id){
+    const p = PHILOSOPHERS.find(x=>x.id===id);
+    if(!p || !confirm(`Remove ${p.name}? This cannot be undone.`)) return;
+    const idx = PHILOSOPHERS.findIndex(x=>x.id===id);
+    if(idx>-1) PHILOSOPHERS.splice(idx,1);
+    if(fbReady){
+      try{
+        const db = window._qpmDB;
+        const {doc, deleteDoc} = window._qpmFS;
+        if(deleteDoc) await deleteDoc(doc(db,"philosophers",id));
+        toast(`${p.name} removed.`);
+      } catch(e){ toast("Removed locally — Firebase sync failed."); }
+    } else { toast(`${p.name} removed (offline).`); }
+    renderPhilosophers();
+    document.getElementById("devPanel").classList.add("open");
+    devUnlocked = true;
+    renderDevRoster();
+  }
+
+  async function devAddMember(){
+    const name = (document.getElementById("devAddName").value||"").trim();
+    const tag  = (document.getElementById("devAddTag").value||"").trim();
+    const tier = document.getElementById("devAddTier").value;
+    const code = (document.getElementById("devAddCode").value||"").trim().toUpperCase();
+    if(!name){ toast("Enter a display name."); return; }
+    if(!code){ toast("Enter a code for this member."); return; }
+    if(PHILOSOPHERS.find(p=>p.code===code)){ toast("That code is already in use."); return; }
+    const id = name.toLowerCase().replace(/[^a-z0-9]/g,"_");
+    const isDev = tier==="dev";
+    const newP = { id, tier, name, tag, code, quoteLimit:tier==="vip"?2:4, quotes:[], isDev };
+    PHILOSOPHERS.push(newP);
+    if(fbReady){
+      try{
+        const db = window._qpmDB;
+        const {doc, setDoc} = window._qpmFS;
+        await setDoc(doc(db,"philosophers",id),{ name, tier, tag, code, quoteLimit:newP.quoteLimit, quotes:[] });
+        toast(`${name} added as ${tier.toUpperCase()}!`);
+      } catch(e){ toast("Added locally — Firebase sync failed."); }
+    } else { toast(`${name} added (offline).`); }
+    renderPhilosophers();
+    document.getElementById("devPanel").classList.add("open");
+    devUnlocked = true;
+    renderDevRoster();
+  }
+
+  async function devChangeTier(id){
+    devApplyRow(id);
   }
 
   $("#devToggleBtn").addEventListener("click",()=>{ document.getElementById("devPanel").classList.toggle("open"); });
@@ -1159,6 +1235,9 @@
   window.saveQuotes = saveQuotes;
   window.devUnlock = devUnlock;
   window.devChangeTier = devChangeTier;
+  window.devApplyRow = devApplyRow;
+  window.devRemoveMember = devRemoveMember;
+  window.devAddMember = devAddMember;
 
   loadSaved(); loadYours(); updatePip(); buildCats(); setMeta();
 })();
