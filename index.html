@@ -125,6 +125,13 @@
   .ibtn.is-on{color:var(--gold);border-color:var(--gold)}
   .ibtn.is-on svg{fill:var(--gold)}
   .ibtn--del:hover,.ibtn--del:focus-visible{border-color:#D08A78;color:#E2A08F}
+  .ibtn--like{position:relative}
+  .ibtn--like.is-liked{color:#E07070;border-color:#E07070}
+  .ibtn--like.is-liked svg{fill:#E07070}
+  .like-badge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;
+    background:#E07070;color:#fff;border-radius:999px;font-size:.55rem;font-weight:700;
+    display:none;align-items:center;justify-content:center;padding:0 3px;letter-spacing:0}
+  .ibtn--like.has-likes .like-badge{display:flex}
 
   #view-saved{padding:clamp(2rem,6vw,3.4rem) clamp(1.1rem,4vw,2.4rem) 3rem;max-width:780px;width:100%;margin:0 auto}
   .saved-head{margin-bottom:2rem}
@@ -322,6 +329,10 @@
         <button class="ibtn ibtn--del" id="delBtn" aria-label="Delete this truth" style="display:none">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg>
         </button>
+        <button class="ibtn ibtn--like" id="likeBtn" aria-label="Like this truth">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          <span class="like-badge" id="likeBadge">0</span>
+        </button>
         <span class="spacer"></span>
         <button class="nav-btn" id="nextBtn">Next ›</button>
       </div>
@@ -349,6 +360,7 @@
           <button class="dev-pw-btn" onclick="devUnlock()">Unlock</button>
         </div>
         <div id="devRoster" class="dev-roster"></div>
+      <div id="devTopTruths" style="margin-top:1rem"></div>
       </div>
       <div id="philBody"></div>
     </section>
@@ -725,6 +737,7 @@
     elReadEyebrow.textContent=title;
     elCounter.innerHTML=counterHTML;
     updateSaveBtn();
+    updateLikeBtn();
     elDel.style.display = (mode==="topic" && cur.cat===YOURS_IDX) ? "grid" : "none";
     elQuote.classList.remove("enter"); void elQuote.offsetWidth; elQuote.classList.add("enter");
   }
@@ -1255,7 +1268,21 @@
     devApplyRow(id);
   }
 
-  $("#devToggleBtn").addEventListener("click",()=>{ document.getElementById("devPanel").classList.toggle("open"); });
+  $("#devToggleBtn").addEventListener("click", async ()=>{
+    const panel = document.getElementById("devPanel");
+    panel.classList.toggle("open");
+    if(panel.classList.contains("open")){
+      const top = await loadAndShowTopTruths();
+      const el = document.getElementById("devTopTruths");
+      if(!el) return;
+      if(!top.length){ el.innerHTML=''; return; }
+      el.innerHTML = '<div style="font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#E07070;margin-bottom:.6rem;margin-top:.2rem">🔥 Most Liked Truths</div>'+
+        top.map((t,i)=>`<div style="background:var(--ink-2);border-radius:7px;padding:.5rem .8rem;margin-bottom:.4rem;display:flex;gap:.6rem;align-items:center">
+          <span style="color:#E07070;font-size:.85rem;font-weight:700;min-width:28px">${t.count}♥</span>
+          <span style="font-family:var(--serif);font-size:.82rem;color:var(--bone);line-height:1.4">${esc(t.text)}</span>
+        </div>`).join("");
+    }
+  });
 
     $("#enterBtn").addEventListener("click",()=>{ buildCats(); showView("cats"); });
   $("#philBtn").addEventListener("click",()=>{ renderPhilosophers(); showView("phil"); });
@@ -1271,13 +1298,93 @@
   $("#nextBtn").addEventListener("click",()=>step(1));
   elSave.addEventListener("click",toggleSave);
   $("#copyBtn").addEventListener("click",copyQuote);
+  $("#likeBtn").addEventListener("click",toggleTruthLike);
   elDel.addEventListener("click",deleteCurrentYours);
   $("#addCancel").addEventListener("click",closeModal);
   $("#addSave").addEventListener("click",handleAdd);
   modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
 
 
-  // Expose to global scope for inline onclick handlers
+  // ---------------- Truth Likes ----------------
+  const TLIKED_KEY = "pmind.truthlikes.v1";
+  let truthLikedSet = new Set(JSON.parse(localStorage.getItem(TLIKED_KEY)||"[]"));
+  const truthLikesMap = {}; // quoteKey -> count
+
+  function saveTruthLiked(){ try{ localStorage.setItem(TLIKED_KEY, JSON.stringify([...truthLikedSet])); }catch(e){} }
+
+  function quoteKey(lines){ 
+    return lines.join("|").toLowerCase().replace(/[^a-z0-9|]/g,"").substring(0,60); 
+  }
+
+  async function loadTruthLikes(){
+    if(!fbReady) return;
+    try{
+      const db = window._qpmDB;
+      const {collection, getDocs} = window._qpmFS;
+      const snap = await getDocs(collection(db,"truth_likes"));
+      snap.forEach(d=>{ truthLikesMap[d.id] = d.data().count||0; });
+    } catch(e){}
+  }
+
+  async function toggleTruthLike(){
+    const k = quoteKey(curLines);
+    const alreadyLiked = truthLikedSet.has(k);
+    if(alreadyLiked){ 
+      truthLikedSet.delete(k);
+      truthLikesMap[k] = Math.max(0,(truthLikesMap[k]||0)-1);
+    } else {
+      truthLikedSet.add(k);
+      truthLikesMap[k] = (truthLikesMap[k]||0)+1;
+    }
+    saveTruthLiked();
+    updateLikeBtn();
+    if(fbReady){
+      try{
+        const db = window._qpmDB;
+        const {doc, setDoc} = window._qpmFS;
+        await setDoc(doc(db,"truth_likes",k),{ 
+          count: truthLikesMap[k]||0, 
+          text: curLines.join(" / ").substring(0,120),
+          updated: Date.now()
+        });
+      } catch(e){}
+    }
+  }
+
+  function updateLikeBtn(){
+    const k = quoteKey(curLines);
+    const btn = document.getElementById("likeBtn");
+    const badge = document.getElementById("likeBadge");
+    if(!btn||!badge) return;
+    const count = truthLikesMap[k]||0;
+    const liked = truthLikedSet.has(k);
+    btn.classList.toggle("is-liked", liked);
+    btn.classList.toggle("has-likes", count>0);
+    badge.textContent = count>999 ? "999+" : count;
+  }
+
+  async function loadAndShowTopTruths(){
+    if(!fbReady) return [];
+    try{
+      const db = window._qpmDB;
+      const {collection, getDocs} = window._qpmFS;
+      const snap = await getDocs(collection(db,"truth_likes"));
+      const all = [];
+      snap.forEach(d=>{ 
+        const data = d.data();
+        if(data.count>0) all.push({text:data.text||d.id, count:data.count}); 
+      });
+      return all.sort((a,b)=>b.count-a.count).slice(0,10);
+    } catch(e){ return []; }
+  }
+
+  // Call loadTruthLikes after Firebase ready
+  window.addEventListener('fbReady', async ()=>{
+    // already handled in main fbReady, call here too after short delay
+    setTimeout(loadTruthLikes, 500);
+  });
+
+  // ---------------- Expose to global scope for inline onclick handlers
   window.toggleCard = toggleCard;
   window.tryUnlock = tryUnlock;
   window.saveQuotes = saveQuotes;
@@ -1287,6 +1394,8 @@
   window.devRemoveMember = devRemoveMember;
   window.devAddMember = devAddMember;
   window.toggleLike = toggleLike;
+  window.toggleTruthLike = toggleTruthLike;
+  window.updateLikeBtn = updateLikeBtn;
 
   loadSaved(); loadYours(); updatePip(); buildCats(); setMeta();
 })();
