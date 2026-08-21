@@ -2,8 +2,8 @@
   "name": "Quotes for a Philosophical Mind",
   "short_name": "Philosophy",
   "description": "Flawless logic. Completely useless. Hundreds written, over a million generated.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#14111C",
@@ -14,8 +14,6 @@
     "education"
   ],
   "lang": "en",
-  "dir": "ltr",
-  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icons/icon-48.png",
@@ -60,13 +58,11 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [],
   "shortcuts": [
     {
       "name": "Browse Topics",
       "short_name": "Topics",
-      "description": "Browse all philosophy topics",
-      "url": "/?view=cats",
+      "url": "./index.html?view=cats",
       "icons": [
         {
           "src": "icons/icon-96.png",
@@ -77,8 +73,7 @@
     {
       "name": "Surprise Me",
       "short_name": "Random",
-      "description": "Get a random philosophical truth",
-      "url": "/?view=surprise",
+      "url": "./index.html?view=surprise",
       "icons": [
         {
           "src": "icons/icon-96.png",
@@ -89,8 +84,7 @@
     {
       "name": "Our Great Philosophers",
       "short_name": "Philosophers",
-      "description": "View the hall of philosophers",
-      "url": "/?view=phil",
+      "url": "./index.html?view=phil",
       "icons": [
         {
           "src": "icons/icon-96.png",
